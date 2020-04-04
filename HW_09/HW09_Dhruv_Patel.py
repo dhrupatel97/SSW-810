@@ -23,7 +23,7 @@ class Student:
         self._major: str = major
         self._course = dict()
     
-    def add_course(self, course: str, grade: str) -> Dict[str, str]:
+    def add_course(self, course: str, grade: str) -> None:
         """adding grade to the course"""
 
         self._course[course]: Dict[str, str] = grade
@@ -44,7 +44,7 @@ class Instructor:
         self._department: str = department
         self._course_inst: Dict[str, int] = defaultdict(int)
     
-    def add_student(self, course: str) -> Dict[str, int]:
+    def add_student(self, course: str) -> None:
         """increamenting the count of student for the course taken under the instructor"""
 
         self._course_inst[course] += 1
