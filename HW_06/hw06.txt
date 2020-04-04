@@ -1,0 +1,47 @@
+class queue
+
+__init__(self)
+self.q = list
+
+add(name)
+#append the name
+self.q.append(name)
+
+get_next(self)
+# check the length first
+if empty  -> none
+
+else
+self.q.pop()
+
+waiting(self)
+# return self. q
+
+class Donotqueue 
+
+__init__()
+self.vipq = queue()
+self.normal = queue()
+
+arrive()
+if vip
+self.vipq.add(name)
+else
+self.normalq.add(name)
+
+
+next_customer()
+# call get_next()
+
+x = self.vipq.get_next()
+if x = null 
+then check for normalq
+
+waiting()
+l1[] = self.vipq.waiting()
+l2[] = self.normal.waiting()
+
+ltotal = l1 + l2
+
+return ", . join(ltotal)"
+
