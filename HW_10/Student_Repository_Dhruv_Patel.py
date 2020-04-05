@@ -35,6 +35,8 @@ class Student:
 
         passing_grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C']
         passed = list()
+        gpa: float = 0.0
+        GPA: float = 0.0
         
         grade_point: Dict[str, int] = {
             'A': 4.0,
@@ -51,18 +53,21 @@ class Student:
             'F': 0
         }
 
-        gpa: float = 0.0
+        {passed.append(course) for course, grade in self._course.items() if grade in passing_grades}
 
-        [passed.append(course) for course, grade in self._course.items()]
+        mj: Major = Major(self._major)
 
         for grade in self._course.values():
             for g, p in grade_point.items():
                 if grade == g:
                     gpa += p
         
-        GPA = round(gpa/len(passed), 2)
+        if len(passed) == 0:
+            print(f"Student {self._cwid} has not passed with minimum grade point")
+        else:
+            GPA = round(gpa/len(passed), 2)
 
-        return [self._cwid, self._name, sorted(self._course.keys()), GPA]
+        return [self._cwid, self._name, sorted(passed), GPA]
 
 class Instructor:
     """adding about a single instructor"""
