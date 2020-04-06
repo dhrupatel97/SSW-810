@@ -32,42 +32,10 @@ class Student:
     
     def student_records(self) -> list:
         """display the records"""
-
-        passing_grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C']
-        passed = list()
-        gpa: float = 0.0
-        GPA: float = 0.0
         
-        grade_point: Dict[str, int] = {
-            'A': 4.0,
-            'A-': 3.75,
-            'B+': 3.25,
-            'B': 3.0,
-            'B-': 2.75,
-            'C+': 2.25,
-            'C': 2.0,
-            'C-': 0,
-            'D+': 0,
-            'D': 0,
-            'D-': 0,
-            'F': 0
-        }
-
-        {passed.append(course) for course, grade in self._course.items() if grade in passing_grades}
-
-        mj: Major = Major(self._major)
-
-        for grade in self._course.values():
-            for g, p in grade_point.items():
-                if grade == g:
-                    gpa += p
+        passed, rem_r, rem_ele, GPA = Major(self._major).remaining_course(self._cwid, self._course)
         
-        if len(passed) == 0:
-            print(f"Student {self._cwid} has not passed with minimum grade point")
-        else:
-            GPA = round(gpa/len(passed), 2)
-
-        return [self._cwid, self._name, sorted(passed), GPA]
+        return [self._cwid, self._name, sorted(passed), sorted(rem_r), sorted(rem_ele), GPA]
 
 class Instructor:
     """adding about a single instructor"""
@@ -110,6 +78,64 @@ class Major:
             self._electives[course]: Dict[str, str] = flag
         else:
             print(f"Unknown Flag found {flag}")
+        
+    def remaining_course(self, cwid, completed):
+        """finding remaining courses"""
+        
+        passing_grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C']
+
+        gpa: float = 0.0
+        GPA: float = 0.0
+        
+        grade_point: Dict[str, int] = {
+            'A': 4.0,
+            'A-': 3.75,
+            'B+': 3.25,
+            'B': 3.0,
+            'B-': 2.75,
+            'C+': 2.25,
+            'C': 2.0,
+            'C-': 0,
+            'D+': 0,
+            'D': 0,
+            'D-': 0,
+            'F': 0
+        }
+
+        passed = {course for course, grade in completed.items() if grade in passing_grades}
+
+        for grade in completed.values():
+            for g, p in grade_point.items():
+                if grade == g:
+                    gpa += p
+        
+        rem_r = list()
+        rem_ele = list()
+
+        for i in self._required.values():
+            if i not in passed:
+                rem_r.append(i)
+        
+        for i in self._electives.values():
+            if i in passed:
+                rem_ele = None
+            else:
+                rem_ele.append(i)
+        
+        # using set
+        # rem_r = self._required - passed
+
+        # if self._electives.intersection(passed):
+        #     rem_ele = None
+        # else:
+        #     rem_ele = self._electives
+
+        if len(passed) == 0:
+            print(f"Student {cwid} has not passed with minimum grade point")
+        else:
+            GPA = round(gpa/len(passed), 2)
+
+        return passed, rem_r, rem_ele, GPA
 
     def major_records(self) -> list:
         """display records"""
@@ -152,13 +178,13 @@ class Repository:
     def _get_instructors(self, path: str) -> None:
         """reading the file and adding instructor to the container"""
 
-        for cwid, name, department in file_reader(path, 3, sep = '|', header = False):
+        for cwid, name, department in file_reader(path, 3, sep = '|', header = True):
             self._instructors[cwid] = Instructor(cwid, name, department)
     
     def _get_grades(self, path: str) -> None:
         """reading the file and adding grades to respective student"""
 
-        for st_cwid, course, grade, in_cwid in file_reader(path, 4, sep = '|', header = False):
+        for st_cwid, course, grade, in_cwid in file_reader(path, 4, sep = '|', header = True):
             if st_cwid in self._students:
                 self._students[st_cwid].add_course(course, grade)
             else:
@@ -178,7 +204,7 @@ class Repository:
             self._majors[major].add_course(course, flag)
             
     def student_table(self) -> None:
-        ptable = PrettyTable(field_names=['CWID', 'NAME', 'COMPLETED COURSES', 'GPA'])
+        ptable = PrettyTable(field_names=['CWID', 'NAME', 'COMPLETED COURSES', 'REMAINING REQUIRED', 'REMAINING ELECTIVES', 'GPA'])
 
         for student in self._students.values():
             ptable.add_row(student.student_records())
