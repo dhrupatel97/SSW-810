@@ -33,9 +33,9 @@ class Student:
     def student_records(self) -> list:
         """display the records"""
         
-        passed, rem_r, rem_ele, GPA = Major(self._major).remaining_course(self._cwid, self._course)
+        major, passed, rem_r, rem_ele, GPA = self._major.remaining_course(self._cwid, self._course)
         
-        return [self._cwid, self._name, sorted(passed), sorted(rem_r), sorted(rem_ele), GPA]
+        return [self._cwid, self._name, major, sorted(passed), rem_r, rem_ele, GPA]
 
 class Instructor:
     """adding about a single instructor"""
@@ -73,17 +73,29 @@ class Major:
         """adding flag to the major when this function is called"""
         
         if flag == 'R':
-            self._required[course]: Dict[str, str] = flag
+            self._required[course] = flag
         elif flag == 'E':
-            self._electives[course]: Dict[str, str] = flag
+            self._electives[course] = flag
         else:
             print(f"Unknown Flag found {flag}")
         
     def remaining_course(self, cwid, completed):
         """finding remaining courses"""
         
-        passing_grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C']
+        passing_grades = {'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'}
 
+        passed = {course for course, grade in completed.items() if grade in passing_grades}
+        
+
+        rem_r = set(self._required) - passed
+        re = set(self._electives)
+
+        if re.intersection(passed):
+            rem_ele = None
+        else:
+            rem_ele = re
+        
+        
         gpa: float = 0.0
         GPA: float = 0.0
         
@@ -102,40 +114,18 @@ class Major:
             'F': 0
         }
 
-        passed = {course for course, grade in completed.items() if grade in passing_grades}
 
         for grade in completed.values():
             for g, p in grade_point.items():
                 if grade == g:
                     gpa += p
-        
-        rem_r = list()
-        rem_ele = list()
-
-        for i in self._required.values():
-            if i not in passed:
-                rem_r.append(i)
-        
-        for i in self._electives.values():
-            if i in passed:
-                rem_ele = None
-            else:
-                rem_ele.append(i)
-        
-        # using set
-        # rem_r = self._required - passed
-
-        # if self._electives.intersection(passed):
-        #     rem_ele = None
-        # else:
-        #     rem_ele = self._electives
 
         if len(passed) == 0:
             print(f"Student {cwid} has not passed with minimum grade point")
         else:
             GPA = round(gpa/len(passed), 2)
 
-        return passed, rem_r, rem_ele, GPA
+        return self._major, passed, rem_r, rem_ele, GPA
 
     def major_records(self) -> list:
         """display records"""
@@ -173,7 +163,10 @@ class Repository:
         """reading the file and adding student to the container"""
 
         for cwid, name, major in file_reader(path, 3, sep = ';', header = True):
-            self._students[cwid] = Student(cwid, name, major)
+            if major not in self._majors:
+                print(f"Student {cwid} '{name}' has unknown major '{major}'")
+            else:
+                self._students[cwid] = Student(cwid, name, self._majors[major])
     
     def _get_instructors(self, path: str) -> None:
         """reading the file and adding instructor to the container"""
@@ -204,7 +197,7 @@ class Repository:
             self._majors[major].add_course(course, flag)
             
     def student_table(self) -> None:
-        ptable = PrettyTable(field_names=['CWID', 'NAME', 'COMPLETED COURSES', 'REMAINING REQUIRED', 'REMAINING ELECTIVES', 'GPA'])
+        ptable = PrettyTable(field_names=['CWID', 'NAME', 'MAJOR', 'COMPLETED COURSES', 'REMAINING REQUIRED', 'REMAINING ELECTIVES', 'GPA'])
 
         for student in self._students.values():
             ptable.add_row(student.student_records())
