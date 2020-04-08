@@ -91,7 +91,7 @@ class Major:
         re = set(self._electives)
 
         if re.intersection(passed):
-            rem_ele = None
+            rem_ele = []
         else:
             rem_ele = re
         
@@ -113,7 +113,6 @@ class Major:
             'D-': 0,
             'F': 0
         }
-
 
         for grade in completed.values():
             for g, p in grade_point.items():
@@ -143,7 +142,7 @@ class Repository:
         self._majors: Dict[str, Major] = dict()
 
         try:
-            self._get_major(os.path.join(dir, 'major.txt'))
+            self._get_major(os.path.join(dir, 'majors.txt'))
             self._get_students(os.path.join(dir, 'students.txt'))
             self._get_instructors(os.path.join(dir, 'instructors.txt'))
             self._get_grades(os.path.join(dir, 'grades.txt'))
