@@ -8,7 +8,7 @@
 """
 
 
-from typing import Dict, Set
+from typing import Dict, Set, Tuple
 from collections import defaultdict
 import os
 from HW08_Dhruv_Patel import file_reader
@@ -79,7 +79,7 @@ class Major:
         else:
             print(f"Unknown Flag found {flag}")
         
-    def remaining_course(self, cwid, completed):
+    def remaining_course(self, cwid, completed) -> tuple:
         """finding remaining courses"""
         
         passing_grades = {'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'}
