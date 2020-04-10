@@ -82,13 +82,13 @@ class Major:
     def remaining_course(self, cwid, completed) -> tuple:
         """finding remaining courses"""
         
-        passing_grades = {'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'}
+        passing_grades: Set[str] = {'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'}
 
-        passed = {course for course, grade in completed.items() if grade in passing_grades}
+        passed: Set[str] = {course for course, grade in completed.items() if grade in passing_grades}
         
 
-        rem_r = set(self._required) - passed
-        re = set(self._electives)
+        rem_r: Set[str] = set(self._required) - passed
+        re: Set[str] = set(self._electives)
 
         if re.intersection(passed):
             rem_ele = []
@@ -99,7 +99,7 @@ class Major:
         gpa: float = 0.0
         GPA: float = 0.0
         
-        grade_point: Dict[str, int] = {
+        grade_point: Dict[str, float] = {
             'A': 4.0,
             'A-': 3.75,
             'B+': 3.25,
